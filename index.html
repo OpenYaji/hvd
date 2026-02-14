@@ -366,6 +366,30 @@
             font-size: 0.7rem;
             opacity: 0.7;
         }
+
+        .music-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+
+        .music-btn:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -433,11 +457,17 @@
                 </div>
                 <p style="z-index:2;position:relative;font-family:'Brush Script MT','Segoe Script',cursive;font-size:0.95rem;">"Wishing you a day filled with love and happiness."</p>
                 <h3 style="margin-top: 10px; font-size: 1rem; z-index:2; position:relative;">Happy Valentine's Day!</h3>
-                <p style="font-size: 0.6rem; margin-top: 5px; z-index:2; position:relative;">♡ DEVYAJI 2026 ♡</p>
+                <p style="font-size: 0.6rem; margin-top: 5px; z-index:2; position:relative;">♡ DEVYAJI ♡</p>
             </div>
         </div>
 
     </div>
+
+    <audio id="bgMusic" loop>
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <button class="music-btn" id="musicBtn">♪</button>
 
     <div class="hint">Tap to flip pages</div>
 
@@ -445,10 +475,20 @@
         const p1 = document.getElementById('p1');
         const p2 = document.getElementById('p2');
         const book = document.getElementById('book');
+        const music = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
         
         let step = 1;
+        let musicStarted = false;
 
         book.addEventListener('click', () => {
+            // Start music on first interaction
+            if (!musicStarted) {
+                music.volume = 0.8;
+                music.play();
+                musicStarted = true;
+            }
+
             if (step === 1) {
                 p1.classList.add('flipped');
                 step = 2;
@@ -459,6 +499,17 @@
                 p1.classList.remove('flipped');
                 p2.classList.remove('flipped');
                 step = 1;
+            }
+        });
+
+        musicBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (music.paused) {
+                music.play();
+                musicBtn.textContent = '♪';
+            } else {
+                music.pause();
+                musicBtn.textContent = '✕';
             }
         });
     </script>
