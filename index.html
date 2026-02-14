@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Valentine Book</title>
+    <style>
+        :root {
+            --primary: #e97195;
+            --secondary: #fcd5e0;
+            --bg: #252122;
+            --doodle-dark: #b03a5d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+        }
+
+        .book-container {
+            perspective: 1500px;
+            width: 45vw; 
+            max-width: 160px; 
+            height: 280px;
+            position: relative;
+            transform: translateX(35%); 
+        }
+
+        .paper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transform-origin: left;
+            transform-style: preserve-3d;
+            transition: transform 1.1s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+
+        #p1 { z-index: 3; } 
+        #p2 { z-index: 2; }
+
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            box-shadow: inset 3px 0 8px rgba(0,0,0,0.1), 3px 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .back {
+            transform: rotateY(180deg);
+            background: white;
+            border-radius: 8px 0 0 8px;
+        }
+
+        /* --- DOODLE COVER DESIGN --- */
+        .cover-design {
+            background-color: #fffdf7;
+            background-image:
+                linear-gradient(rgba(200, 200, 255, 0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 200, 255, 0.25) 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow: hidden;
+        }
+
+        /* Sketchy inner border */
+        .cover-design::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 2px dashed var(--doodle-dark);
+            border-radius: 6px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Remove the old hearts cascade */
+        .cover-design::after {
+            content: '';
+            display: none;
+        }
+
+        /* Doodle elements container */
+        .doodle-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .doodle-elements span {
+            position: absolute;
+            opacity: 0.7;
+            line-height: 1;
+        }
+
+        .doodle-elements .d1 { top: 12px; left: 14px; font-size: 1rem; transform: rotate(-15deg); }
+        .doodle-elements .d2 { top: 14px; right: 14px; font-size: 0.7rem; transform: rotate(20deg); }
+        .doodle-elements .d3 { bottom: 50px; left: 12px; font-size: 0.8rem; transform: rotate(10deg); }
+        .doodle-elements .d4 { bottom: 12px; right: 16px; font-size: 0.9rem; transform: rotate(-10deg); }
+        .doodle-elements .d5 { bottom: 14px; left: 50%; transform: translateX(-50%) rotate(5deg); font-size: 0.6rem; }
+        .doodle-elements .d6 { top: 50%; right: 10px; font-size: 0.7rem; transform: rotate(25deg); }
+        .doodle-elements .d7 { top: 50%; left: 10px; font-size: 0.6rem; transform: rotate(-20deg); }
+        .doodle-elements .d8 { top: 35px; left: 50%; font-size: 0.6rem; transform: translateX(-50%) rotate(8deg); }
+
+        /* Sketchy underline for title */
+        .cover-text h2.doodle-title {
+            font-size: 1.2rem;
+            color: var(--doodle-dark);
+            font-family: 'Brush Script MT', 'Segoe Script', cursive;
+            position: relative;
+            display: inline-block;
+        }
+
+        .cover-text h2.doodle-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: -4px;
+            right: -4px;
+            height: 3px;
+            background: var(--doodle-dark);
+            opacity: 0.4;
+            border-radius: 2px;
+            transform: rotate(-1deg);
+        }
+
+        .cover-text .doodle-sub {
+            font-family: 'Georgia', serif;
+            font-size: 0.85rem;
+            margin-top: 0px;
+            color: #555;
+            letter-spacing: 1px;
+        }
+
+        .cover-text .doodle-label {
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            color: #999;
+            margin-bottom: -2px;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+
+        .doodle-heart-big {
+            font-size: 2.2rem;
+            margin-top: 12px;
+            color: var(--primary);
+            opacity: 0.85;
+            animation: pulse-heart 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-heart {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+        }
+
+        .white-page {
+            background-color: #fffdf7;
+            background-image:
+                linear-gradient(rgba(200, 200, 255, 0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 200, 255, 0.25) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #444;
+            text-align: center;
+            font-size: 0.8rem;
+            overflow: hidden;
+        }
+
+        .white-page::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 2px dashed rgba(180, 80, 120, 0.3);
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        .pink-page {
+            background-color: var(--primary);
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: white;
+            text-align: center;
+            font-size: 0.8rem;
+            overflow: hidden;
+        }
+
+        .pink-page::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 2px dashed rgba(255, 255, 255, 0.35);
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        /* Page doodle decorations */
+        .page-doodles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .page-doodles span {
+            position: absolute;
+            opacity: 0.5;
+            line-height: 1;
+        }
+
+        .pink-page .page-doodles span {
+            opacity: 0.3;
+        }
+
+        /* Page 3 - Polaroid image page */
+        .image-page {
+            background-color: #fffdf7;
+            background-image:
+                linear-gradient(rgba(200, 200, 255, 0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 200, 255, 0.25) 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow: hidden;
+        }
+
+        .image-page::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 2px dashed rgba(180, 80, 120, 0.3);
+            border-radius: 6px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .polaroid {
+            position: relative;
+            z-index: 2;
+            background: #fff;
+            padding: 6px 6px 28px 6px;
+            box-shadow: 2px 3px 10px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+            transform: rotate(-2deg);
+            width: 75%;
+            max-width: 110px;
+        }
+
+        .polaroid img {
+            width: 100%;
+            display: block;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+        }
+
+        .polaroid .polaroid-caption {
+            position: absolute;
+            bottom: 4px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-family: 'Brush Script MT', 'Segoe Script', cursive;
+            font-size: 0.75rem;
+            color: var(--doodle-dark);
+        }
+
+        /* Tape strip on top of polaroid */
+        .polaroid::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%) rotate(1deg);
+            width: 40px;
+            height: 14px;
+            background: rgba(255, 230, 180, 0.7);
+            border: 1px solid rgba(200, 180, 130, 0.4);
+            z-index: 3;
+        }
+
+        .image-page .page-subtitle {
+            z-index: 2;
+            position: relative;
+            margin-top: 12px;
+            font-size: 0.6rem;
+            color: #888;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .image-page .img-doodles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .image-page .img-doodles span {
+            position: absolute;
+            opacity: 0.5;
+            line-height: 1;
+            color: var(--doodle-dark);
+        }
+
+        .image-page::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: 6px;
+            bottom: 6px;
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 6px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .flipped {
+            transform: rotateY(-180deg);
+        }
+
+        .paper.flipped {
+            z-index: 4 !important;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 20px;
+            color: var(--primary);
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="book-container" id="book">
+        
+        <div id="p1" class="paper">
+            <div class="front cover-design">
+                <div class="doodle-elements">
+                    <span class="d1">♡</span>
+                    <span class="d2">✦</span>
+                    <span class="d3">☆</span>
+                    <span class="d4">♡</span>
+                    <span class="d5">✿</span>
+                    <span class="d6">♥</span>
+                    <span class="d7">↝</span>
+                    <span class="d8">∞</span>
+                </div>
+                <div class="cover-text">
+                    <p class="doodle-label">happy</p>
+                    <h2 class="doodle-title">Valentine's</h2>
+                    <p class="doodle-sub">Day</p>
+                    <div class="doodle-heart-big">♥</div>
+                </div>
+            </div>
+            <div class="back white-page">
+                <div class="page-doodles">
+                    <span style="top:10px;left:12px;font-size:0.8rem;transform:rotate(-10deg);">♡</span>
+                    <span style="top:15px;right:15px;font-size:0.6rem;transform:rotate(15deg);">✦</span>
+                    <span style="bottom:40px;left:10px;font-size:0.7rem;transform:rotate(20deg);">✿</span>
+                    <span style="bottom:10px;right:12px;font-size:0.8rem;transform:rotate(-15deg);">☆</span>
+                    <span style="bottom:12px;left:50%;font-size:0.6rem;transform:translateX(-50%) rotate(5deg);">∿∿</span>
+                    <span style="top:50%;left:8px;font-size:0.5rem;transform:rotate(-25deg);">↝</span>
+                    <span style="top:50%;right:8px;font-size:0.6rem;transform:rotate(30deg);">♡</span>
+                </div>
+                <p style="z-index:2;position:relative;font-family:'Brush Script MT','Segoe Script',cursive;font-size:1rem;"><i>"You are loved more than you know."</i></p>
+            </div>
+        </div>
+
+        <div id="p2" class="paper">
+            <div class="front image-page">
+                <div class="img-doodles">
+                    <span style="top:10px;left:10px;font-size:0.7rem;transform:rotate(-12deg);">♡</span>
+                    <span style="top:12px;right:12px;font-size:0.6rem;transform:rotate(18deg);">✦</span>
+                    <span style="bottom:12px;left:12px;font-size:0.6rem;transform:rotate(10deg);">☆</span>
+                    <span style="bottom:10px;right:10px;font-size:0.7rem;transform:rotate(-15deg);">♡</span>
+                    <span style="top:45%;left:6px;font-size:0.5rem;transform:rotate(20deg);">✿</span>
+                    <span style="top:45%;right:6px;font-size:0.5rem;transform:rotate(-20deg);">↝</span>
+                </div>
+                <div class="polaroid">
+                    <img src="cat.jpg" alt="Cute cat with flowers">
+                    <span class="polaroid-caption">For You ♡</span>
+                </div>
+                <p class="page-subtitle">A little something<br>to make you smile.</p>
+            </div>
+            <div class="back pink-page">
+                <div class="page-doodles">
+                    <span style="top:12px;left:12px;font-size:0.8rem;transform:rotate(-10deg);">♡</span>
+                    <span style="top:12px;right:12px;font-size:0.7rem;transform:rotate(15deg);">✦</span>
+                    <span style="bottom:40px;left:10px;font-size:0.6rem;transform:rotate(18deg);">☆</span>
+                    <span style="bottom:10px;right:14px;font-size:0.7rem;transform:rotate(-12deg);">♡</span>
+                    <span style="bottom:10px;left:14px;font-size:0.6rem;transform:rotate(8deg);">✿</span>
+                    <span style="top:50%;left:8px;font-size:0.5rem;transform:rotate(-15deg);">∿∿</span>
+                    <span style="top:50%;right:8px;font-size:0.6rem;transform:rotate(20deg);">♥</span>
+                </div>
+                <p style="z-index:2;position:relative;font-family:'Brush Script MT','Segoe Script',cursive;font-size:0.95rem;">"Wishing you a day filled with love and happiness."</p>
+                <h3 style="margin-top: 10px; font-size: 1rem; z-index:2; position:relative;">Happy Valentine's Day!</h3>
+                <p style="font-size: 0.6rem; margin-top: 5px; z-index:2; position:relative;">♡ DEVYAJI 2026 ♡</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="hint">Tap to flip pages</div>
+
+    <script>
+        const p1 = document.getElementById('p1');
+        const p2 = document.getElementById('p2');
+        const book = document.getElementById('book');
+        
+        let step = 1;
+
+        book.addEventListener('click', () => {
+            if (step === 1) {
+                p1.classList.add('flipped');
+                step = 2;
+            } else if (step === 2) {
+                p2.classList.add('flipped');
+                step = 3;
+            } else {
+                p1.classList.remove('flipped');
+                p2.classList.remove('flipped');
+                step = 1;
+            }
+        });
+    </script>
+</body>
+</html>
+``` 
